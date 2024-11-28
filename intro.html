@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>자기소개 페이지</title>
+  
+  <!-- 마크다운 파일을 HTML로 변환하는 라이브러리 -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <!-- GitHub 마크다운 라이트 테마 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.css" integrity="sha512-n5zPz6LZB0QV1eraRj4OOxRbsV7a12eAGfFcrJ4bBFxxAwwYDp542z5M0w24tKPEhKk2QzjjIpR5hpOjJtGGoA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  
+  <style>
+    /* 기본 스타일 */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #d3d3d3;
+      padding: 40px 0;
+    }
+
+    .container {
+      display: flex;
+      height: calc(100vh - 80px);
+      gap: 15px;
+    }
+
+    /* 사이드바 스타일 */
+    .sidebar {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding-left: 40px;
+      margin-top: 50px;
+    }
+
+    /* 사진을 위한 스타일 */
+    .photo {
+      width: 150px;
+      height: 200px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* 메인 콘텐츠 영역 */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      margin-right: 40px;
+    }
+
+    /* 내용 영역 */
+    .content {
+      margin: 0;
+      padding: 20px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-top: none;
+      border-radius: 0 10px 10px 10px;
+      flex: 1;
+      overflow-y: auto;
+      height: 100%;
+    }
+
+    /* 스크롤바 스타일링 */
+    .content::-webkit-scrollbar {
+      width: 12px;
+    }
+
+    .content::-webkit-scrollbar-thumb {
+      background-color: #888;
+      border-radius: 10px;
+      border: 3px solid #f1f1f1;
+    }
+
+    .content::-webkit-scrollbar-thumb:hover {
+      background-color: #555;
+    }
+
+    .content::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+
+    /* 탭 스타일 */
+    .tabs ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: flex;
+      border: none;
+    }
+
+    .tabs ul li {
+      margin: 0;
+    }
+
+    .tabs ul li a {
+      display: block;
+      padding: 10px 20px;
+      background: #f6f6f6;
+      color: #909090;
+      text-decoration: none;
+      font-weight: bold;
+      text-align: center;
+      border: 1px solid #e0e0e0;
+      border-bottom: none;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.75);
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+    }
+
+    .tabs ul li.active a {
+      background: #fff;
+      color: #dd390d;
+      border: 1px solid #d4d4d4;
+      border-bottom: none;
+    }
+
+    /* 로그인 버튼 스타일 */
+    .signin {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      padding: 10px 20px;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      border-radius: 5px;
+    }
+
+    .signin:hover {
+      background-color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 사이드바 (사진 영역) -->
+    <div class="sidebar">
+      <div class="photo">
+        <img id="image" src="" alt="사진">
+      </div>
+    </div>
+
+    <!-- 메인 콘텐츠 -->
+    <div class="main">
+      <div class="tabs">
+        <ul>
+          <li class="active"><a href="#" onclick="loadMarkdown('about.md', this)">About</a></li>
+          <li><a href="#" onclick="loadMarkdown('contact.md', this)">Contact</a></li>
+          <li><a href="#" onclick="loadMarkdown('memo.md', this)">Memo</a></li>
+        </ul>
+      </div>
+
+      <!-- 내용 표시 영역 -->
+      <div class="content" id="content">
+        <p>이곳에 내용이 표시됩니다.</p>
+      </div>
+    </div>
+
+    <!-- 로그인 버튼 또는 로그아웃 버튼 -->
+    <button class="signin" id="signinButton" onclick="toggleLoginStatus()"></button>
+  </div>
+
+  <script>
+      // 로그인 상태 체크 함수
+      function checkLoginStatus() {
+        // 로컬 스토리지에서 'isLoggedIn' 값을 가져와 로그인 상태를 확인
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
+
+        // 'signinButton' 요소를 찾아 버튼 텍스트를 변경할 준비
+        const signinButton = document.getElementById('signinButton');
+        
+        // 로그인 상태가 'true'일 경우
+        if (isLoggedIn === 'true') {
+          // 로그인 상태에서는 버튼 텍스트를 "Logout"으로 변경
+          signinButton.textContent = 'Logout';
+        } else {
+          // 로그인되지 않은 상태에서는 버튼 텍스트를 "Sign in"으로 설정
+          signinButton.textContent = 'Sign in';
+        }
+      }
+
+    // 로그인/로그아웃 상태 전환 함수
+    function toggleLoginStatus() {
+      const isLoggedIn = localStorage.getItem('isLoggedIn');
+      if (isLoggedIn === 'true') {
+        // 로그아웃 처리
+        alert("로그아웃되었습니다.");
+        localStorage.setItem('isLoggedIn', 'false'); // 로그인 상태를 false로 변경
+
+        //checkLoginStatus(); // 버튼 상태 업데이트
+
+        // 페이지 새로 고침 (탭 새로 고침)
+        window.location.reload(); // 현재 페이지 새로고침
+      } else {
+        // 로그인 페이지로 이동
+        location.href = 'login.html';
+      }
+    }
+
+    // 페이지 로드 시 로그인 상태 체크
+    window.onload = checkLoginStatus;
+
+    let currentFile = ''; // 현재 로드된 마크다운 파일을 추적
+
+    // 로컬스토리지에서 페이지 번호를 가져와서 이미지 경로 설정
+    let pageNumber = localStorage.getItem('pageNumber'); // 페이지 번호
+    let imagePath = `../source/${pageNumber}/image.jpg`; // 이미지 경로
+
+    // 이미지 src 속성에 경로 적용
+    document.getElementById("image").src = imagePath;
+
+    // 탭 활성화 함수
+    function activateTab(element) {
+      // 기존 탭 비활성화
+      const tabs = document.querySelectorAll('.tabs ul li');
+      tabs.forEach(tab => tab.classList.remove('active'));
+
+      // 클릭한 탭 활성화
+      element.parentElement.classList.add('active');
+    }
+
+    // 마크다운 파일을 로드하는 함수
+    async function loadMarkdown(file, element) {
+      // 클릭한 탭이 이미 로드된 파일이라면 다시 로드하지 않음
+      if (currentFile !== file) {
+        activateTab(element); // 클릭한 탭 활성화
+        currentFile = file; // 현재 파일 업데이트
+
+        try {
+          const response = await fetch(`../source/${pageNumber}/${file}`); // 마크다운 파일 요청
+          if (!response.ok) throw new Error('파일을 불러올 수 없습니다.');
+
+          const markdown = await response.text(); // 마크다운 텍스트 읽기
+          const html = marked.parse(markdown); // 마크다운을 HTML로 변환
+
+          // 변환된 HTML을 content 영역에 삽입
+          document.getElementById('content').innerHTML = `<div class="markdown-body">${html}</div>`;
+
+          // 내용이 로드된 후 스크롤을 맨 위로 이동
+          document.getElementById('content').scrollTop = 0;
+        } catch (error) {
+          document.getElementById('content').innerHTML = `<p style="color:red;">오류: ${error.message}</p>`; // 오류 처리
+        }
+      }
+    }
+
+    // 페이지 로드 시 'about.md' 파일을 기본적으로 로드
+    document.addEventListener('DOMContentLoaded', () => {
+      loadMarkdown('about.md', document.querySelector('.tabs ul li.active a')); // 'About' 탭 기본 로드
+    });
+  </script>
+</body>
+</html>

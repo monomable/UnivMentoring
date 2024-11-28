@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>로그인</title>
+  <style>
+    table {
+      width: 280px;
+      height: 250px;
+      margin: auto;
+      font-size: 15px;
+    }
+
+    input[type="text"], input[type="password"] {
+      width: 250px;
+      height: 32px;
+      font-size: 15px;
+      border: 0;
+      border-radius: 15px;
+      outline: none;
+      padding-left: 10px;
+      background-color: rgb(233, 233, 233);
+    }
+
+    .btn {
+      width: 263px;
+      height: 32px;
+      font-size: 15px;
+      border: 0;
+      border-radius: 15px;
+      outline: none;
+      padding-left: 10px;
+      background-color: rgb(164, 199, 255);
+      cursor: pointer;
+    }
+
+    .btn:active {
+      background-color: rgb(61, 135, 255);
+    }
+
+    a {
+      font-size: 12px;
+      color: darkgray;
+      text-decoration: none;
+    }
+
+    .join {
+      text-align: center;
+    }
+
+     /* 커스텀 알림 박스 스타일 */
+     .alert-box {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      z-index: 9999;
+      width: 300px;
+      text-align: center;
+      font-size: 16px;
+      font-weight: bold;
+      opacity: 0;
+      transition: opacity 0.3s ease-in-out;
+    }
+
+    .alert-box.show {
+      display: block;
+      opacity: 1;
+    }
+
+    /* 실패 메시지 스타일 */
+    .alert-error {
+      border: 2px solid #f44336;
+      color: #f44336;
+      background-color: #f8d7da;
+    }
+  </style>
+</head>
+<body>
+  <!-- 로그인 폼, onsubmit에서 validateForm 호출 -->
+  <form id="loginForm">
+    <table>
+      <tr>
+        <td><h2>로그인</h2></td>
+      </tr>
+      <!-- ID 입력 필드 -->
+      <tr>
+        <td><input type="text" id="username" placeholder="ID"></td>
+      </tr>
+      <!-- 비밀번호 입력 필드 -->
+      <tr>
+        <td><input type="password" id="password" placeholder="Password"></td>
+      </tr>
+      <!-- 로그인 정보 저장 체크박스 -->
+      <tr>
+        <td><input type="checkbox" id="rememberMe"> 로그인 정보 저장</td>
+      </tr>
+      <!-- 로그인 버튼 -->
+      <tr>
+        <td><input type="submit" value="Sign in" class="btn"></td>
+      </tr>
+      <!-- 회원가입 링크 -->
+      <tr>
+        <td class="join"><a href="signup.html">회원가입</a></td>
+      </tr>
+    </table>
+  </form>
+
+  <!-- 커스텀 alert 박스 -->
+  <div id="alertBox" class="alert-box">
+    <p id="alertMessage"></p>
+  </div>
+
+  <script>
+    // 커스텀 alert 메시지 표시 함수
+    function showAlert(message, type) {
+      const alertBox = document.getElementById("alertBox");
+      const alertMessage = document.getElementById("alertMessage");
+
+      // 메시지 설정
+      alertMessage.textContent = message;
+
+      // 기존 클래스 제거 후 새로운 클래스 추가
+      alertBox.classList.remove("alert-error");
+      alertBox.classList.add(type === "error" ? "alert-error" : "");
+
+      // alertBox 표시
+      alertBox.classList.add("show");
+
+      // 3초 후 alertBox 숨기기
+      setTimeout(function() {
+        alertBox.classList.remove("show");
+      }, 3000);
+    }
+
+    // 폼 유효성 검사 함수
+    function validateForm(event) {
+      // 기본 폼 제출 동작을 막기 위해 event.preventDefault()
+      event.preventDefault();
+
+      // ID와 비밀번호 ID저장 필드를 가져옴
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const rememberMe = document.getElementById('rememberMe').checked;
+
+      // 만약 필드가 비어있으면 경고 메시지 출력
+      if (username === "") {
+        showAlert("사용자명을 입력해주세요.", "error");
+        handleLoginFailure(rememberMe);
+        return; // 폼 제출을 막음
+      }
+
+      if (password === "") {
+        showAlert("비밀번호를 입력해주세요.", "error");
+        handleLoginFailure(rememberMe);
+        return; // 폼 제출을 막음
+      }
+
+      // 로그인 정보 저장 체크박스가 체크되었으면 localStorage에 아이디 저장
+      if (rememberMe) {
+        localStorage.setItem("username", username);
+      } else {
+        localStorage.removeItem("username"); // 체크가 해제되면 아이디 삭제
+      }
+
+      // 로컬 스토리지에 'isLoggedIn'이라는 키로 값을 'true'로 설정하여 로그인 상태를 기록
+      localStorage.setItem('isLoggedIn', 'true');
+
+      // 모든 필드가 채워졌다면 intro.html 페이지로 이동
+      window.location.href = "intro.html"; // intro.html로 이동
+    }
+
+    // 로그인 실패 후 username 필드 비우기
+    function handleLoginFailure() {
+      const rememberMe = document.getElementById("rememberMe").checked;
+
+      if (!rememberMe) {
+        // 체크박스가 해제되어 있다면 username 필드를 빈칸으로 설정
+        document.getElementById("username").value = "";
+      }
+    }
+
+    // 로그인 폼 제출 시 validateForm 함수 실행
+    document.getElementById('loginForm').addEventListener('submit', validateForm);
+
+    // 페이지 로드 시 저장된 아이디가 있으면 input에 채워 넣기
+    document.addEventListener('DOMContentLoaded', () => {
+      const savedUsername = localStorage.getItem("username");
+
+      // 만약 저장된 아이디가 있고, 로그인 정보 저장 체크박스가 체크되었으면
+      if (savedUsername) {
+        document.getElementById("username").value = savedUsername;
+        document.getElementById("rememberMe").checked = true; // 체크박스를 체크 상태로 설정
+      } else {
+        // 아이디가 없으면 체크박스를 해제하고 아이디 필드를 비워 둡니다.
+        document.getElementById("rememberMe").checked = false;
+        document.getElementById("username").value = ""; // 아이디 필드를 비워둡니다.
+      }
+    });
+  </script>
+</body>
+</html>
