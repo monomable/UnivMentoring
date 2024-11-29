@@ -95,10 +95,10 @@
   <script>
     // 페이지 데이터 배열: 각 페이지의 ID와 이름을 포함
     const pages = [
-      { id: 1, name: "이름 1" },
-      { id: 2, name: "이름 2" },
-      { id: 3, name: "이름 3" },
-      { id: 4, name: "이름 4" }
+      { id: 1, name: "김윤철" },
+      { id: 2, name: "김종헌" },
+      { id: 3, name: "이준희" },
+      { id: 4, name: "정성윤" }
     ];
 
     // 페이지 요소 생성 함수: 페이지 정보를 기반으로 HTML 요소를 생성
@@ -150,21 +150,6 @@
 
     // 페이지 로드 시 실행: DOMContentLoaded 이벤트가 발생하면 renderPages 실행
     document.addEventListener("DOMContentLoaded", renderPages); // 페이지 로드 시 renderPages 호출
-
-    // 페이지 로드 시 저장된 아이디가 있으면 input에 채워 넣기
-    document.addEventListener('DOMContentLoaded', () => {
-      const savedUsername = localStorage.getItem("username");
-
-      // 만약 저장된 아이디가 있고, 로그인 정보 저장 체크박스가 체크되었으면
-      if (savedUsername) {
-        document.getElementById("username").value = savedUsername;
-        document.getElementById("rememberMe").checked = true; // 체크박스를 체크 상태로 설정
-      } else {
-        // 아이디가 없으면 체크박스를 해제하고 아이디 필드를 비워 둡니다.
-        document.getElementById("rememberMe").checked = false;
-        document.getElementById("username").value = ""; // 아이디 필드를 비워둡니다.
-      }
-    });
   </script>
 </body>
 </html>
